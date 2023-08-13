@@ -1,1 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
+body {
+  background-image: url('/assets/gods/bg_krosmaga.jpg');
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
+@font-face {
+  font-family: 'KM_font';
+  src: url('/assets/BebasNeue.otf');
+}

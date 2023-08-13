@@ -1,0 +1,100 @@
+<div class="topHeader"
+     style="display:flex; justify-content: space-between; width:80vw; margin-left:10vw; margin-top:25px;">
+
+  <div class="message"
+       style="color:  white; text-shadow:0 0.15vw 0 #3B3B3B; font-family: 'KM_font'; font-size: 50px; text-align: center; margin-bottom:25px">
+    <input type="text" id="name" name="name" size="10" placeholder="Krosmage" style="font-size:50px;"/>
+  </div>
+
+  <div class="btnValidCenter" id="btnValidation" (click)="copyMessage()" [cdkCopyToClipboard]="getLink()">
+    <div class="btnValid" (mouseenter)="updateShareButtonImage(true)" (mouseleave)="updateShareButtonImage(false)">
+      <img [src]="shareButtonSrc" alt="Image" style="width: 7vw; height: 4vw">
+      <div class="shareMessageBtn"
+           style="color:  white; text-shadow:0 0.15vw 0 #3B3B3B; font-family: 'KM_font'; text-align: center;">
+        PARTAGER
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  style="color:  white; text-shadow:0 0.15vw 0 #3B3B3B; font-family: 'KM_font'; font-size: 5.8vw; text-align: center; margin-bottom:25px">
+  {{instructions}}
+</div>
+
+<div class="container" id="godBan" style="display:flex; justify-content: center; flex-direction: row;">
+  <div class="container" id="godSelection"
+       style="display:flex; justify-content: center; flex-direction: column; width:50%;">
+
+    <div class="message"
+         style="color:  white; text-shadow:0 0.15vw 0 #3B3B3B; font-family: 'KM_font'; font-size: 50px; text-align: center; margin-bottom:25px">
+      Tes dieux
+    </div>
+
+    <div class="buttons" style="display:flex; justify-content: center; flex-wrap:wrap;">
+
+      <div class="flip-box" *ngFor="let god of leftPlayerGods; let index = index;"
+           [ngStyle]="{
+           'animation' : (index % 2 == 0 ? 'floatingReversed ' : 'floating ') + '10s ease-in-out infinite',
+           'cursor' : currentStep=== Step.PICK_NEEDED ? 'pointer' : 'default'
+           }">
+        <div class="flip-box-inner leftPlayerGods">
+          <div class="flip-box-front">
+            <img [src]="god.back" [ngClass]="{ 'grey' : god.banned }" alt="Image">
+          </div>
+          <div class="flip-box-back">
+            <img (click)="pick(index)" [src]="god.front"
+                 [ngClass]="{ 'grey' : god.banned }"
+                 [ngStyle]="{ 'filter' : god.selected ? 'drop-shadow(0 0 2rem #dcd914)' : null}"
+                 alt="Image">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="width:50%;">
+    <div class="message"
+         style="color:  white; text-shadow:0 0.15vw 0 #3B3B3B; font-family: 'KM_font'; font-size: 50px; text-align: center; margin-bottom:25px">
+      Dieux adverses
+    </div>
+
+    <div class="buttons" style="display:flex; justify-content: center;">
+      <div class="rowGod" class="container" id="opponentSelected" style="display:flex; justify-content: center;">
+
+        <div class="flip-box" *ngFor="let god of rightPlayerGods; let index = index;"
+             [ngStyle]="{
+             'animation' : ((index % 2 == 0 ? 'floatingReversed ' : 'floating ') + '10s ease-in-out infinite') + (god.banned ? ', shake 0.10s 3' : ''),
+             'cursor' : currentStep=== Step.PICKS_DONE ? 'pointer' : 'default'}">
+          <div class="flip-box-inner rightPlayerGods">
+            <div class="flip-box-front">
+              <img [src]="god.back" [ngClass]="{ 'grey' : god.selected || god.banned }" alt="Image">
+            </div>
+            <div class="flip-box-back">
+              <img [src]="god.front" (click)="ban(index)"
+                   [ngClass]="{ 'grey' : god.selected || god.banned }"
+                   alt="Image">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="btnValidCenter" *ngIf="displayButton()">
+  <div class="btnValid" (mouseenter)="updateValidButtonImage(true)" (mouseleave)="updateValidButtonImage(false)"
+       (click)="submit()" [ngStyle]="{'cursor' : validPickSelection || validBanSelection ? 'pointer' : 'default'}">
+    <img id="validationImg"
+         [src]="validButtonSrc"
+         alt="Image">
+    <div class="messageBtn"
+         style="color:  white; text-shadow:0 0.15vw 0 #3B3B3B; font-family: 'KM_font'; text-align: center;">
+      VALIDER
+    </div>
+  </div>
+</div>
+
+
+

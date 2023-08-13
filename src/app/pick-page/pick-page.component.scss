@@ -1,0 +1,109 @@
+body {
+  //background-image: url('gods/bg_krosmaga.jpg');
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  height: 25vw;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+.grey {
+  filter: grayscale(1);
+}
+
+.btnValidCenter {
+  display:flex;
+  justify-content: center;
+}
+
+.btnValid {
+  position: relative;
+  text-align: center;
+  display: flex;
+}
+
+.shareMessageBtn {
+  position: absolute;
+  top: 0.9vw;
+  left: 0.9vw;
+  font-size: 1.7vw
+}
+
+.messageBtn {
+  position: absolute;
+  top: 0.9vw;
+  left: 0.9vw;
+  font-size: 1.7vw
+}
+
+
+img {
+  width: 9vw;
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+/* The flip box container - set the width and height to whatever you want. We have added the border property to demonstrate that the flip itself goes out of the box on hover (remove perspective if you don't want the 3D effect */
+.flip-box {
+  width: 9vw;
+  height: 10.20vw;
+  background-color: transparent;
+  perspective: 1000px; /* Remove this if you don't want the 3D effect */
+}
+
+@keyframes floating {
+  0% { transform: translate(0,  0px); }
+  50%  { transform: translate(0, 3px); }
+  100%   { transform: translate(0, -0px); }
+}
+@keyframes floatingReversed {
+  0% { transform: translate(0,  0px); }
+  50%  { transform: translate(0, -3px); }
+  100%   { transform: translate(0, -0px); }
+}
+
+/* This container is needed to position the front and back side */
+.flip-box-inner {
+  position: relative;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+  //cursor: pointer;
+}
+
+/* Do an horizontal flip when you move the mouse over the flip box container */
+.flip-box:hover .flip-box-inner {
+}
+
+/* Position the front and back side */
+.flip-box-front, .flip-box-back {
+  position: absolute;
+  backface-visibility: hidden;
+}
+
+/* Style the front side (fallback if image is missing) */
+.flip-box-front {
+}
+
+/* Style the back side */
+.flip-box-back {
+  transform: rotateY(180deg);
+}
