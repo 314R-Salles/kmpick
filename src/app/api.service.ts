@@ -27,16 +27,22 @@ export class ApiService {
     return this.http.get<any>(`${this.API_URL}/room/${uuidRoom}`, {headers});
   }
 
-  pickGods(uuidPlayer: string, roomId: string, picks: number[]) {
+  pickGods(uuidPlayer: string, roomId: string, picks: number[], name: string) {
     let headers = new HttpHeaders();
     headers = headers.append('km_token', uuidPlayer);
-    return this.http.post<any>(`${this.API_URL}/gods`,{roomId, picks}, {headers});
+    return this.http.post<any>(`${this.API_URL}/gods`,{roomId, picks, name}, {headers});
   }
 
-  banGod(uuidPlayer: string, roomId: string, ban: number) {
+  banGod(uuidPlayer: string, roomId: string, ban: number, name: string) {
     let headers = new HttpHeaders();
     headers = headers.append('km_token', uuidPlayer);
-    return this.http.post<any>(`${this.API_URL}/ban`,{roomId, ban}, {headers});
+    return this.http.post<any>(`${this.API_URL}/ban`,{roomId, ban, name}, {headers});
+  }
+
+  updateUsername(uuidPlayer: string, roomId: string, name: string) {
+    let headers = new HttpHeaders();
+    headers = headers.append('km_token', uuidPlayer);
+    return this.http.post<any>(`${this.API_URL}/username`,{roomId, name}, {headers});
   }
 
 }

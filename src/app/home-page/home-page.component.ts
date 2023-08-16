@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component} from '@angular/core';
 import {ApiService} from "../api.service";
 import * as uuid from 'uuid';
 import {CookieService} from "ngx-cookie-service";
@@ -9,21 +9,18 @@ import {Router} from "@angular/router";
   templateUrl: './home-page.component.html',
   styleUrls: ['./home-page.component.scss']
 })
-export class HomePageComponent implements OnInit {
-  playerName;
+export class HomePageComponent {
 
   constructor(private apiService: ApiService,
               private cookieService: CookieService,
-              private router: Router) { }
-
-  ngOnInit(): void {
+              private router: Router) {
   }
 
-  createRoom(){
+  createRoom() {
+    let playerUuid = this.cookieService.get('playerUuid');
     const roomUuid = uuid.v4();
-    const playerUuid = this.cookieService.get('playerUuid');
     this.apiService.createRoom(playerUuid, roomUuid).subscribe(
-      uuid => this.router.navigate(['/room'],  { queryParams: { uuid }})
+      uuid => this.router.navigate(['/room'], {queryParams: {uuid}})
     )
   }
 

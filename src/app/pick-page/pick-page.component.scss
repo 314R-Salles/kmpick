@@ -25,24 +25,21 @@ body {
 
 .btnValid {
   position: relative;
-  text-align: center;
-  display: flex;
-}
-
-.shareMessageBtn {
-  position: absolute;
-  top: 0.9vw;
-  left: 0.9vw;
-  font-size: 1.7vw
 }
 
 .messageBtn {
   position: absolute;
   top: 0.9vw;
-  left: 0.9vw;
+  left: 1.8vw;
   font-size: 1.7vw
 }
 
+.shareMessageBtn {
+  position: absolute;
+  top: 0.9vw;
+  left: 1.36vw;
+  font-size: 1.7vw
+}
 
 img {
   width: 9vw;

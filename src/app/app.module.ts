@@ -7,9 +7,11 @@ import { HomePageComponent } from './home-page/home-page.component';
 import {AppInitializerService} from "./app-initializer.service";
 import {CookieService} from "ngx-cookie-service";
 import { PickPageComponent } from './pick-page/pick-page.component';
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {AngularMaterialModule} from "./angular.material.module";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {FormsModule} from "@angular/forms";
+import {HttpInterceptorService} from "./http-interceptor.service";
 
 @NgModule({
   declarations: [
@@ -19,12 +21,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   ],
   imports: [
     BrowserModule,
+    FormsModule,
     HttpClientModule,
     AppRoutingModule,
     AngularMaterialModule,
     BrowserAnimationsModule
   ],
   providers: [
+    {provide: HTTP_INTERCEPTORS, useClass: HttpInterceptorService, multi: true},
     {
       provide: APP_INITIALIZER,
       useFactory: initApp,
