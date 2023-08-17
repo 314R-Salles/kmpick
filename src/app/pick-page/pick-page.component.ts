@@ -273,7 +273,6 @@ export class PickPageComponent implements OnInit, OnDestroy {
   computeTop() {
     if (this.instructions) {
       let size = 2.75 + this.instructions.length * 0.25 / (33 - 14) - 0.18
-      console.log(size)
       return `${size}vw`
     } else {
       return '2.75vw'
