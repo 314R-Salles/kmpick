@@ -5,6 +5,8 @@ import {CookieService} from "ngx-cookie-service";
 import {gsap} from 'gsap';
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {interval} from "rxjs";
+import {Meta} from "@angular/platform-browser";
+import {Location} from "@angular/common";
 
 @Component({
   selector: 'app-pick-page',
@@ -55,9 +57,32 @@ export class PickPageComponent implements OnInit, OnDestroy {
   constructor(private route: ActivatedRoute,
               private cookieService: CookieService,
               private apiService: ApiService,
-              private _snackBar: MatSnackBar) {
+              private _snackBar: MatSnackBar,
+              private metaService: Meta) {
+
+    this.route.queryParams.subscribe(params => {
+        this.playerUuid = this.cookieService.get('playerUuid')
+        this.roomId = params['uuid'];
+        this.apiService.getRoom(this.playerUuid, this.roomId).subscribe(roomProperties => {
+          this.loadRoom(roomProperties, true);
+          let players: Player[] = roomProperties.player;
+
+          this.metaService.removeTag("name='description'");
+          this.metaService.addTags([
+            {
+              name: 'description',
+              content:
+                `${players[0]?.name} ${players[1]?.name}`,
+            },
+          ]);
+        })
+      }
+    );
+
+
   }
 
+  // fixme marche pas en prod.
   flipAnimationGenerator(classe: string) {
     let timeline = gsap.timeline();
 
@@ -87,14 +112,6 @@ export class PickPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-        this.playerUuid = this.cookieService.get('playerUuid')
-        this.roomId = params['uuid'];
-        this.apiService.getRoom(this.playerUuid, this.roomId).subscribe(roomProperties => {
-          this.loadRoom(roomProperties, true);
-        })
-      }
-    );
 
     // le délai de refresh doit matcher avec la durée d'anim du floating floating  + '10s
     let source = interval(10000);
@@ -260,7 +277,7 @@ export class PickPageComponent implements OnInit, OnDestroy {
   }
 
   getLink() {
-    return window.location.toString()
+    return "Location.toString()"
   }
 
   copyMessage() {

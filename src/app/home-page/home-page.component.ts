@@ -3,6 +3,7 @@ import {ApiService} from "../api.service";
 import * as uuid from 'uuid';
 import {CookieService} from "ngx-cookie-service";
 import {Router} from "@angular/router";
+import {Meta} from "@angular/platform-browser";
 
 @Component({
   selector: 'app-home-page',
@@ -13,7 +14,15 @@ export class HomePageComponent {
 
   constructor(private apiService: ApiService,
               private cookieService: CookieService,
-              private router: Router) {
+              private router: Router,
+              private metaService: Meta) {
+    this.metaService.addTags([
+      {
+        name: 'description',
+        content:
+          'Créer une nouvelle draft',
+      },
+    ]);
   }
 
   createRoom() {
