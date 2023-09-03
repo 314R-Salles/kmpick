@@ -109,5 +109,8 @@
       }
     }
   },
-  "defaultProject": "kmpick"
+  "defaultProject": "kmpick",
+  "cli": {
+    "analytics": "d23eb4eb-6179-4f24-a3c7-72de931c9863"
+  }
 }

@@ -72,6 +72,18 @@ export class PickPageComponent implements OnInit, OnDestroy {
       rotateY: 180,
       rotateX: 0,
     })
+
+    // ça c'est dégueulasse.
+    // Sur Firefox on a vu que   backface-visibility: hidden; ne fonctionne pas.
+    // donc ajout d'un décalage, transparence, rétrécissement sur le dos de la carte pour compenser.
+    if ([Step.BANS_DONE, Step.SPECTATING].includes(this.currentStep)) {
+      gsap.timeline().delay(duration * 2.65).to('.flip-box-front > .grey', {
+        duration,
+        opacity: '0',
+        width: '50',
+        marginLeft: '-4vw',
+      })
+    }
   }
 
   ngOnInit(): void {
