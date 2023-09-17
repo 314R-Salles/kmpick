@@ -1,20 +1,25 @@
 import 'zone.js/node';
 
-import { APP_BASE_HREF } from '@angular/common';
-import { ngExpressEngine } from '@nguniversal/express-engine';
+import {APP_BASE_HREF} from '@angular/common';
+import {ngExpressEngine} from '@nguniversal/express-engine';
 import * as express from 'express';
-import { existsSync } from 'fs';
-import { join } from 'path';
+import * as fs from 'fs';
+import {existsSync} from 'fs';
+import {join} from 'path';
 
-import { AppServerModule } from './src/main.server';
-import * as fs from "fs";
+import {AppServerModule} from './src/main.server';
 import * as https from "https";
+import {environment} from "./src/environments/environment";
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
   const server = express();
-  // const distFolder = join(process.cwd(), '../browser');
-  const distFolder = join(process.cwd(), 'dist/kmpick/browser');
+  let distFolder;
+  if (environment.production) {
+    distFolder = join(process.cwd(), '../browser');
+  } else {
+    distFolder = join(process.cwd(), 'dist/kmpick/browser');
+  }
   const indexHtml = existsSync(join(distFolder, 'index.original.html')) ? 'index.original.html' : 'index';
 
   // Our Universal express-engine (found @ https://github.com/angular/universal/tree/main/modules/express-engine)
@@ -34,7 +39,7 @@ export function app(): express.Express {
 
   // All regular routes use the Universal engine
   server.get('*', (req, res) => {
-    res.render(indexHtml, { req, providers: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }] });
+    res.render(indexHtml, {req, providers: [{provide: APP_BASE_HREF, useValue: req.baseUrl}]});
   });
 
   return server;
@@ -43,11 +48,17 @@ export function app(): express.Express {
 function run(): void {
   const port = process.env['PORT'] || 4200;
 
+  let server;
+
   // Start up the Node server
-  // const privateKey = fs.readFileSync('./privkey.pem');
-  // const certificate = fs.readFileSync('./cert.pem');
-  // const server = https.createServer({ key: privateKey, cert: certificate }, app());
-  const server = app();
+  if (environment.production) {
+    const privateKey = fs.readFileSync('./privkey.pem');
+    const certificate = fs.readFileSync('./cert.pem');
+    server = https.createServer({key: privateKey, cert: certificate}, app());
+  } else {
+    server = app();
+  }
+
   server.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
