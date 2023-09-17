@@ -27,6 +27,10 @@ export class ApiService {
     return this.http.get<any>(`${this.API_URL}/room/${uuidRoom}`, {headers});
   }
 
+  getRoomForCrawlers(uuidRoom: string) {
+    return this.http.get<any>(`${this.API_URL}/meta/${uuidRoom}`);
+  }
+
   pickGods(uuidPlayer: string, roomId: string, picks: number[], name: string) {
     let headers = new HttpHeaders();
     headers = headers.append('km_token', uuidPlayer);

@@ -1,12 +1,13 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute} from "@angular/router";
+import {Component, Inject, OnDestroy, OnInit, PLATFORM_ID} from '@angular/core';
+import {ActivatedRoute, Router} from "@angular/router";
 import {ApiService} from "../api.service";
 import {CookieService} from "ngx-cookie-service";
 import {gsap} from 'gsap';
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {interval} from "rxjs";
-import {Meta} from "@angular/platform-browser";
-import {Location} from "@angular/common";
+import {Meta, Title} from "@angular/platform-browser";
+import {isPlatformBrowser} from "@angular/common";
+import {environment} from "../../environments/environment";
 
 @Component({
   selector: 'app-pick-page',
@@ -25,6 +26,8 @@ export class PickPageComponent implements OnInit, OnDestroy {
   validPickSelection = false;
   validBanSelection = false;
   Step = Step
+
+  shareButtonText = 'PARTAGER'
 
   instructions
 
@@ -54,35 +57,51 @@ export class PickPageComponent implements OnInit, OnDestroy {
 
   subscription
 
+
   constructor(private route: ActivatedRoute,
+              private router: Router,
               private cookieService: CookieService,
               private apiService: ApiService,
               private _snackBar: MatSnackBar,
-              private metaService: Meta) {
+              private metaService: Meta,
+              private titleService: Title,
+              @Inject(PLATFORM_ID)
+              private platformId: any) {
 
-    this.route.queryParams.subscribe(params => {
-        this.playerUuid = this.cookieService.get('playerUuid')
-        this.roomId = params['uuid'];
-        this.apiService.getRoom(this.playerUuid, this.roomId).subscribe(roomProperties => {
-          this.loadRoom(roomProperties, true);
-          let players: Player[] = roomProperties.player;
-
-          this.metaService.removeTag("name='description'");
-          this.metaService.addTags([
-            {
-              name: 'description',
-              content:
-                `${players[0]?.name} ${players[1]?.name}`,
-            },
-          ]);
-        })
-      }
-    );
-
-
+    this.roomId = getParameterByName('uuid', this.router.url)
+    if (isPlatformBrowser(this.platformId)) {
+      this.playerUuid = this.cookieService.get('playerUuid')
+      this.apiService.getRoom(this.playerUuid, this.roomId).subscribe(roomProperties => {
+        this.loadRoom(roomProperties, true);
+      })
+    } else {
+      this.apiService.getRoomForCrawlers(this.roomId).subscribe(room => {
+        let title;
+        if (room.player[1] == null) {
+          console.log(room.player[1])
+          title = `Rejoins la draft de ${room.player[0].name}`
+        } else {
+          title = `Draft de ${room.player[0].name} vs ${room.player[1].name}`
+        }
+        this.titleService.setTitle(title)
+        this.metaService.removeTag("name='description'");
+        this.metaService.addTags([
+          {
+            name: 'description',
+            content: title,
+          },
+          {
+            property: 'og:image',
+            content: `/assets/${this.roomId}.png`
+          }, {
+            property: 'twitter:image',
+            content: `/assets/${this.roomId}.png`
+          },
+        ]);
+      })
+    }
   }
 
-  // fixme marche pas en prod.
   flipAnimationGenerator(classe: string) {
     let timeline = gsap.timeline();
 
@@ -112,15 +131,16 @@ export class PickPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-
-    // le délai de refresh doit matcher avec la durée d'anim du floating floating  + '10s
-    let source = interval(10000);
-    this.subscription = source.subscribe(_ => {
-      if ([Step.BAN_DONE, Step.PICK_DONE].includes(this.currentStep) || this.currentStep === Step.SPECTATING && this.previousSpectatingStep != Step.BANS_DONE)
-        this.apiService.getRoom(this.playerUuid, this.roomId).subscribe(roomProperties => {
-          this.loadRoom(roomProperties, false);
-        })
-    });
+    if (isPlatformBrowser(this.platformId)) {
+      // le délai de refresh doit matcher avec la durée d'anim du floating floating  + '10s
+      let source = interval(10000);
+      this.subscription = source.subscribe(_ => {
+        if ([Step.BAN_DONE, Step.PICK_DONE].includes(this.currentStep) || this.currentStep === Step.SPECTATING && this.previousSpectatingStep != Step.BANS_DONE)
+          this.apiService.getRoom(this.playerUuid, this.roomId).subscribe(roomProperties => {
+            this.loadRoom(roomProperties, false);
+          })
+      });
+    }
   }
 
   /**
@@ -217,6 +237,7 @@ export class PickPageComponent implements OnInit, OnDestroy {
     } else {
       this.currentStep = Step.BANS_DONE;
       this.instructions = 'DRAFT TERMINÉE'
+      this.shareButtonText = 'PARTAGER LE RESULTAT'
       this.setPlayersName(currentPlayer, otherPlayer, initialisation)
       animLeft = initialisation;
       animRight = initialisation;
@@ -277,13 +298,21 @@ export class PickPageComponent implements OnInit, OnDestroy {
   }
 
   getLink() {
-    return "Location.toString()"
+    if (this.currentStep === Step.BANS_DONE) return environment.WEB_URL + this.router.url + '&complete'
+    else return environment.WEB_URL + this.router.url
   }
 
   copyMessage() {
     this._snackBar.open('Url copiée dans le presse papier', null, {
       duration: 3000
     });
+  }
+
+  displayShareButton() {
+    return [Step.PICK_NEEDED].includes(this.currentStep);
+  }
+  displayShareResultButton() {
+    return [Step.BANS_DONE].includes(this.currentStep);
   }
 
   displayInputButtons() {
@@ -336,8 +365,17 @@ export class PickPageComponent implements OnInit, OnDestroy {
     }
   }
 
-
 }
+
+export function getParameterByName(name, url) {
+  name = name.replace(/[\[\]]/g, '\\$&');
+  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+    results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
 
 export class Card {
   id: number;

@@ -11,7 +11,7 @@
 </div>
 
 <div style="display:flex;">
-  <div style="display:flex; justify-content: center; flex-direction: column; width:50%;">
+  <div class="panel">
 
     <div style="display:flex; justify-content:center;" *ngIf="displayInputButtons(); else leftPlayerNameLabel">
       <input type="text" [(ngModel)]="leftPlayerName" style="font-size:2vw;"/>
@@ -55,9 +55,9 @@
     </div>
   </div>
 
-  <div style="width:50%;">
+  <div class="panel" >
     <div class="message"
-         style="color:  white; text-shadow:0 0.15vw 0 #3B3B3B; font-family: 'KM_font'; font-size: 50px; text-align: center">
+         style="color:  white; text-shadow:0 0.15vw 0 #3B3B3B; font-family: 'KM_font'; font-size: 2.6vw; text-align: center">
       {{rightPlayerName}}
     </div>
 
@@ -85,7 +85,7 @@
 </div>
 
 <div class="btnValidCenter" style="margin-top: 1.5vw">
-  <div class="" *ngIf="displayInputButtons()">
+  <div *ngIf="displayInputButtons()">
     <div class="btnValid" (mouseenter)="updateValidButtonImage(true)" (mouseleave)="updateValidButtonImage(false)"
          (click)="submit()" [ngStyle]="{'cursor' : validPickSelection || validBanSelection ? 'pointer' : 'default'}">
       <img id="validationImg" style="width: 8vw; height: 3.5vw; margin-right: 1vw"
@@ -97,12 +97,22 @@
     </div>
   </div>
 
-  <div class="" id="btnValidation" (click)="copyMessage()" [cdkCopyToClipboard]="getLink()">
+  <div (click)="copyMessage()" [cdkCopyToClipboard]="getLink()" *ngIf="displayShareButton()">
     <div class="btnValid" (mouseenter)="updateShareButtonImage(true)" (mouseleave)="updateShareButtonImage(false)">
       <img [src]="shareButtonSrc" style="width: 8vw; height: 3.5vw">
       <div class="shareMessageBtn"
            style="color:  white; text-shadow:0 0.1vw 0 #3B3B3B, 0 0 0.15vw #000; font-family: 'KM_font'; text-align: center;">
-        PARTAGER
+        {{shareButtonText}}
+      </div>
+    </div>
+  </div>
+
+  <div (click)="copyMessage()" [cdkCopyToClipboard]="getLink()" *ngIf="displayShareResultButton()">
+    <div class="btnValid" (mouseenter)="updateShareButtonImage(true)" (mouseleave)="updateShareButtonImage(false)">
+      <img [src]="shareButtonSrc" style="width: 13vw; height: 3.5vw">
+      <div class="shareResultMessageBtn"
+           style="color:  white; text-shadow:0 0.1vw 0 #3B3B3B, 0 0 0.15vw #000; font-family: 'KM_font'; text-align: center;">
+        {{shareButtonText}}
       </div>
     </div>
   </div>

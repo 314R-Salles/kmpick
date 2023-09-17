@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   JAVA_API: 'http://localhost:8080',
+  WEB_URL: 'http://localhost:4200',
 };
 
 

@@ -42,12 +42,11 @@ export function app(): express.Express {
 
 function run(): void {
   const port = process.env['PORT'] || 4200;
-  //
+
+  // Start up the Node server
   // const privateKey = fs.readFileSync('./privkey.pem');
   // const certificate = fs.readFileSync('./cert.pem');
   // const server = https.createServer({ key: privateKey, cert: certificate }, app());
-
-  // Start up the Node server
   const server = app();
   server.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
