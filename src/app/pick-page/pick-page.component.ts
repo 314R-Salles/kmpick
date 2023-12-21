@@ -4,10 +4,10 @@ import {ApiService} from "../api.service";
 import {CookieService} from "ngx-cookie-service";
 import {gsap} from 'gsap';
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {interval} from "rxjs";
 import {Meta, Title} from "@angular/platform-browser";
 import {isPlatformBrowser} from "@angular/common";
 import {environment} from "../../environments/environment";
+import {ProgressWebsocketService} from "../ws-impl.service";
 
 @Component({
   selector: 'app-pick-page',
@@ -25,6 +25,8 @@ export class PickPageComponent implements OnInit, OnDestroy {
   validNameButtonSrc = '/assets/buttons/kmButtonUnactivated.png';
   validPickSelection = false;
   validBanSelection = false;
+  usernameError = false
+  usernameUpdate = false
   Step = Step
 
   shareButtonText = 'PARTAGER'
@@ -55,7 +57,7 @@ export class PickPageComponent implements OnInit, OnDestroy {
   rightPlayerGods: Card[] = []
   rightPlayerName: string;
 
-  subscription
+  // subscription
 
 
   constructor(private route: ActivatedRoute,
@@ -65,6 +67,7 @@ export class PickPageComponent implements OnInit, OnDestroy {
               private _snackBar: MatSnackBar,
               private metaService: Meta,
               private titleService: Title,
+              private progressWebsocketService: ProgressWebsocketService,
               @Inject(PLATFORM_ID)
               private platformId: any) {
 
@@ -102,6 +105,23 @@ export class PickPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  private initProgressWebSocket = (roomId, playerId) => {
+    this.progressWebsocketService.startWS(roomId, playerId)
+    const obs = this.progressWebsocketService.getObservable();
+    obs.subscribe({
+      next: this.onNewProgressMsg,
+      error: err => {
+        console.log(err);
+      }
+    });
+  }
+
+  private onNewProgressMsg = receivedMsg => {
+    if (receivedMsg.type === 'SUCCESS') {
+      this.loadRoom(receivedMsg.message, false);
+    }
+  }
+
   flipAnimationGenerator(classe: string) {
     let timeline = gsap.timeline();
 
@@ -132,14 +152,15 @@ export class PickPageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
+      this.initProgressWebSocket(this.roomId, this.playerUuid);
       // le délai de refresh doit matcher avec la durée d'anim du floating floating  + '10s
-      let source = interval(10000);
-      this.subscription = source.subscribe(_ => {
-        if ([Step.BAN_DONE, Step.PICK_DONE].includes(this.currentStep) || this.currentStep === Step.SPECTATING && this.previousSpectatingStep != Step.BANS_DONE)
-          this.apiService.getRoom(this.playerUuid, this.roomId).subscribe(roomProperties => {
-            this.loadRoom(roomProperties, false);
-          })
-      });
+      // let source = interval(10000);
+      // this.subscription = source.subscribe(_ => {
+      //   if ([Step.BAN_DONE, Step.PICK_DONE].includes(this.currentStep) || this.currentStep === Step.SPECTATING && this.previousSpectatingStep != Step.BANS_DONE)
+      //     this.apiService.getRoom(this.playerUuid, this.roomId).subscribe(roomProperties => {
+      //       this.loadRoom(roomProperties, false);
+      //     })
+      // });
     }
   }
 
@@ -148,7 +169,7 @@ export class PickPageComponent implements OnInit, OnDestroy {
    * par exemple en passant du spec d'une room à une autre dans un meme onglet
    */
   ngOnDestroy() {
-    if (this.subscription) this.subscription.unsubscribe();
+    // if (this.subscription) this.subscription.unsubscribe();
   }
 
   setPlayersName(p1, p2, initialisation) {
@@ -269,16 +290,27 @@ export class PickPageComponent implements OnInit, OnDestroy {
     if (this.currentStep == Step.PICK_NEEDED) {
       let selectedIds = this.ALL_GODS.filter(god => god.selected).map(god => god.id)
       this.apiService.pickGods(this.playerUuid, this.roomId, selectedIds, this.leftPlayerName)
-        .subscribe(room => this.loadRoom(room, false));
+        .subscribe(room => console.log("this.loadRoom(room, false)"));
     } else if (this.currentStep == Step.PICKS_DONE) {
       let selectedId = this.rightPlayerGods.find(god => god.selected).id
       this.apiService.banGod(this.playerUuid, this.roomId, selectedId, this.leftPlayerName)
-        .subscribe(room => this.loadRoom(room, false));
+        .subscribe(room => console.log("this.loadRoom(room, false)"));
     }
   }
 
   updateUsername() {
-    this.apiService.updateUsername(this.playerUuid, this.roomId, this.leftPlayerName).subscribe()
+    this.usernameError = false;
+    this.usernameUpdate = false;
+    this.apiService.updateUsername(this.playerUuid, this.roomId, this.leftPlayerName).subscribe({
+      next: err => {
+        this.usernameError = false;
+        this.usernameUpdate = true;
+      },
+      error: err => {
+        this.usernameError = true;
+        this.usernameUpdate = false;
+      },
+    })
   }
 
   pick(id) {
@@ -311,6 +343,7 @@ export class PickPageComponent implements OnInit, OnDestroy {
   displayShareButton() {
     return [Step.PICK_NEEDED].includes(this.currentStep);
   }
+
   displayShareResultButton() {
     return [Step.BANS_DONE].includes(this.currentStep);
   }

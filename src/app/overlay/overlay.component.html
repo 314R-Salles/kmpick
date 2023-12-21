@@ -1,0 +1,10 @@
+<div #player1Div id="player1" style="width: 20vw; background: red" cdkDrag (cdkDragEnded)="dropped($event)">
+  {{player1  | json}}
+</div>
+
+<div #player2Div id="player2" style="width: 20vw; background: red" cdkDrag (cdkDragEnded)="dropped($event)">
+  {{player2  | json}}
+</div>
+
+
+{{style1 |  json}}

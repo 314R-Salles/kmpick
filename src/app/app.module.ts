@@ -13,12 +13,14 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FormsModule} from "@angular/forms";
 import {HttpInterceptorService} from "./http-interceptor.service";
 import {Location, LocationStrategy, PathLocationStrategy} from "@angular/common";
+import {OverlayComponent} from "./overlay/overlay.component";
 
 @NgModule({
   declarations: [
     AppComponent,
     HomePageComponent,
-    PickPageComponent
+    PickPageComponent,
+    OverlayComponent
   ],
   imports: [
     BrowserModule.withServerTransition({appId: 'serverApp'}),
@@ -29,9 +31,12 @@ import {Location, LocationStrategy, PathLocationStrategy} from "@angular/common"
     BrowserAnimationsModule
   ],
   providers: [
-    Location, {provide: LocationStrategy, useClass: PathLocationStrategy},
-
-    {provide: HTTP_INTERCEPTORS, useClass: HttpInterceptorService, multi: true},
+    Location, {
+      provide: LocationStrategy, useClass: PathLocationStrategy
+    },
+    {
+      provide: HTTP_INTERCEPTORS, useClass: HttpInterceptorService, multi: true
+    },
     {
       provide: APP_INITIALIZER,
       useFactory: initApp,

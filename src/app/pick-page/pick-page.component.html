@@ -4,7 +4,7 @@
   <img src="/assets/spriteHeader.png" style="width:40vw; height:8vw;">
   <div class="instruction"
        style="color:  white; text-shadow:0 3px 0 #3B3B3B; font-family: 'KM_font', arial;  position:absolute;"
-      [ngStyle]="{'font-size': computeFontSize(), 'top': computeTop()}"
+       [ngStyle]="{'font-size': computeFontSize(), 'top': computeTop()}"
   >
     {{instructions}}
   </div>
@@ -12,7 +12,6 @@
 
 <div style="display:flex;">
   <div class="panel">
-
     <div style="display:flex; justify-content:center;" *ngIf="displayInputButtons(); else leftPlayerNameLabel">
       <input type="text" [(ngModel)]="leftPlayerName" style="font-size:2vw;"/>
       <img (mouseenter)="updateValidNameButtonImage(true)" (mouseleave)="updateValidNameButtonImage(false)"
@@ -23,12 +22,15 @@
            (click)="updateUsername()"
            (mouseenter)="updateValidNameButtonImage(true)" (mouseleave)="updateValidNameButtonImage(false)">
     </div>
-
+    <div *ngIf="usernameError" style="font-weight: bold; align-self: center; color: red">Le pseudo est invalide</div>
+    <div *ngIf="usernameUpdate" style="font-weight: bold;align-self: center; color: green">Le pseudo a été sauvegardé
+    </div>
     <ng-template #leftPlayerNameLabel>
       <div class="message"
-           style="color:  white; text-shadow:0 0.15vw 0 #3B3B3B; font-family: 'KM_font'; font-size: 50px; text-align: center">
+           style="color:  white; text-shadow:0 0.15vw 0 #3B3B3B; font-family: 'KM_font'; font-size: 2.6vw; text-align: center">
         {{leftPlayerName}}
       </div>
+
     </ng-template>
 
     <div class="buttons" style="display:flex; justify-content: center; flex-wrap:wrap;">
@@ -55,7 +57,7 @@
     </div>
   </div>
 
-  <div class="panel" >
+  <div class="panel">
     <div class="message"
          style="color:  white; text-shadow:0 0.15vw 0 #3B3B3B; font-family: 'KM_font'; font-size: 2.6vw; text-align: center">
       {{rightPlayerName}}
@@ -69,10 +71,12 @@
              'animation' : ((index % 2 == 0 ? 'floatingReversed ' : 'floating ') + '10s ease-in-out infinite'),
              'cursor' : currentStep=== Step.PICKS_DONE ? 'pointer' : 'default'}">
           <div class="flip-box-inner rightPlayerGods">
-            <div class="flip-box-front" [ngStyle]="{'margin-left' : god.banned  && currentStep !== Step.BAN_DONE ? '2vw' : 0}">
+            <div class="flip-box-front"
+                 [ngStyle]="{'margin-left' : god.banned  && currentStep !== Step.BAN_DONE ? '2vw' : 0}">
               <img [src]="god.back" [ngClass]="{ 'grey' : god.selected || god.banned }">
             </div>
-            <div class="flip-box-back" [ngStyle]="{'margin-left' : god.banned  && currentStep !== Step.BAN_DONE ? '-2vw' : 0}">
+            <div class="flip-box-back"
+                 [ngStyle]="{'margin-left' : god.banned  && currentStep !== Step.BAN_DONE ? '-2vw' : 0}">
               <img [src]="god.front" (click)="ban(index)"
                    [ngClass]="{ 'grey' : god.selected || god.banned }">
             </div>
