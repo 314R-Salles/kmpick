@@ -13,7 +13,7 @@
 <div style="display:flex;">
   <div class="panel">
     <div style="display:flex; justify-content:center;" *ngIf="displayInputButtons(); else leftPlayerNameLabel">
-      <input type="text" [(ngModel)]="leftPlayerName" style="font-size:2vw;"/>
+      <input (keyup.enter)="updateUsername()" type="text" [(ngModel)]="leftPlayerName" style="font-size:2vw;"/>
       <img (mouseenter)="updateValidNameButtonImage(true)" (mouseleave)="updateValidNameButtonImage(false)"
            (click)="updateUsername()"
            [src]="validNameButtonSrc" style="cursor: pointer; width:3vw; height:3vw; margin-left:-0.2vw;">
@@ -22,8 +22,14 @@
            (click)="updateUsername()"
            (mouseenter)="updateValidNameButtonImage(true)" (mouseleave)="updateValidNameButtonImage(false)">
     </div>
-    <div *ngIf="usernameError" style="font-weight: bold; align-self: center; color: red">Le pseudo est invalide</div>
-    <div *ngIf="usernameUpdate" style="font-weight: bold;align-self: center; color: green">Le pseudo a été sauvegardé
+    <div *ngIf="!usernameError && !usernameUpdate" style="height:0.2vw;"></div>
+    <div *ngIf="usernameError" style="background: #3f2657; border: thick solid #001e7c;
+      font-size: 1vw;font-weight: bold; align-self: center; color: red; margin-top: 0.2vw; margin-bottom: -0.6vw;">
+      Le pseudo est invalide
+    </div>
+    <div *ngIf="usernameUpdate" style="background: #3f2657; border: thick solid #001e7c;
+      font-size: 1vw; font-weight: bold;align-self: center; color: #71f254; margin-top: 0.2vw; margin-bottom: -0.6vw;">
+      Le pseudo a été sauvegardé
     </div>
     <ng-template #leftPlayerNameLabel>
       <div class="message"
@@ -71,11 +77,11 @@
              'animation' : ((index % 2 == 0 ? 'floatingReversed ' : 'floating ') + '10s ease-in-out infinite'),
              'cursor' : currentStep=== Step.PICKS_DONE ? 'pointer' : 'default'}">
           <div class="flip-box-inner rightPlayerGods">
-            <div class="flip-box-front"
+            <div class="flip-box-front" *ngIf="shouldAnimateRightSide"
                  [ngStyle]="{'margin-left' : god.banned  && currentStep !== Step.BAN_DONE ? '2vw' : 0}">
               <img [src]="god.back" [ngClass]="{ 'grey' : god.selected || god.banned }">
             </div>
-            <div class="flip-box-back"
+            <div [ngClass]="{ 'flip-box-back' : shouldAnimateRightSide}"
                  [ngStyle]="{'margin-left' : god.banned  && currentStep !== Step.BAN_DONE ? '-2vw' : 0}">
               <img [src]="god.front" (click)="ban(index)"
                    [ngClass]="{ 'grey' : god.selected || god.banned }">
@@ -89,8 +95,15 @@
 </div>
 
 <div class="btnValidCenter" style="margin-top: 1.5vw">
-  <div *ngIf="displayInputButtons()">
-    <div class="btnValid" (mouseenter)="updateValidButtonImage(true)" (mouseleave)="updateValidButtonImage(false)"
+  <div *ngIf="displayInputButtons()" style="align-self: center">
+    <div *ngIf="preventValidationError">
+      <div style="text-align: center; background: #3f2657; color: red;border: thick solid #001e7c;font-size: 1vw; width: 8vw; margin-right: 1vw">
+        Merci d'utiliser votre pseudo krosmaga
+      </div>
+    </div>
+
+    <div *ngIf="!preventValidationError" class="btnValid" (mouseenter)="updateValidButtonImage(true)"
+         (mouseleave)="updateValidButtonImage(false)"
          (click)="submit()" [ngStyle]="{'cursor' : validPickSelection || validBanSelection ? 'pointer' : 'default'}">
       <img id="validationImg" style="width: 8vw; height: 3.5vw; margin-right: 1vw"
            [src]="validButtonSrc">
@@ -105,7 +118,7 @@
     <div class="btnValid" (mouseenter)="updateShareButtonImage(true)" (mouseleave)="updateShareButtonImage(false)">
       <img [src]="shareButtonSrc" style="width: 8vw; height: 3.5vw">
       <div class="shareMessageBtn"
-           style="color:  white; text-shadow:0 0.1vw 0 #3B3B3B, 0 0 0.15vw #000; font-family: 'KM_font'; text-align: center;">
+           style="color:  white; text-shadow:0 0.1vw 0 #3B3B3B, 0 0 0.15vw #000; font-family: 'KM_font'; text-align: center">
         {{shareButtonText}}
       </div>
     </div>

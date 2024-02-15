@@ -52,8 +52,8 @@ function run(): void {
 
   // Start up the Node server
   if (environment.production) {
-    const privateKey = fs.readFileSync('./privkey.pem');
-    const certificate = fs.readFileSync('./cert.pem');
+    const privateKey = fs.readFileSync('/etc/letsencrypt/live/psalles.ovh/privkey.pem');
+    const certificate = fs.readFileSync('/etc/letsencrypt/live/psalles.ovh/cert.pem');
     server = https.createServer({key: privateKey, cert: certificate}, app());
   } else {
     server = app();

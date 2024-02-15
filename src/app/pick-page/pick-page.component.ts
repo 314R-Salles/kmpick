@@ -27,6 +27,9 @@ export class PickPageComponent implements OnInit, OnDestroy {
   validBanSelection = false;
   usernameError = false
   usernameUpdate = false
+  preventValidationError = false
+  shouldAnimateRightSide = true // Pour que le WS ne redéclenche pas l'anim des cartes au rename.
+  shouldAnimateLeftSide = true // Pour que le WS ne redéclenche pas l'anim des cartes au rename.
   Step = Step
 
   shareButtonText = 'PARTAGER'
@@ -78,10 +81,10 @@ export class PickPageComponent implements OnInit, OnDestroy {
         this.loadRoom(roomProperties, true);
       })
     } else {
-      this.apiService.getRoomForCrawlers(this.roomId).subscribe(room => {
+      this.apiService.getRoomForCrawlers(this.roomId).subscribe(serviceRoom => {
+        let room = serviceRoom.room
         let title;
         if (room.player[1] == null) {
-          console.log(room.player[1])
           title = `Rejoins la draft de ${room.player[0].name}`
         } else {
           title = `Draft de ${room.player[0].name} vs ${room.player[1].name}`
@@ -183,7 +186,11 @@ export class PickPageComponent implements OnInit, OnDestroy {
    * @param initialisation "est ce que c'est déclenché par un F5" puisque ça nécessite de forcer des animations.
    */
 
-  loadRoom(roomProperties, initialisation) {
+  loadRoom(WSRoomResponse, initialisation) {
+    let roomProperties = WSRoomResponse.room
+    let action = WSRoomResponse.action;
+    this.shouldAnimateRightSide = action !== 'rename';
+    this.shouldAnimateLeftSide = action !== 'rename';
     let animLeft, animRight;
     let players: Player[] = roomProperties.player;
     let currentPlayer = players.find(player => player.uuid != null)
@@ -277,9 +284,9 @@ export class PickPageComponent implements OnInit, OnDestroy {
     // sans setTimeout, ça se déclenche sur un html pas à jour et donc ça n'anime rien.
     setTimeout(() => {
       // n'animer que si les données sont connues
-      if (JSON.stringify(this.leftPlayerGods) != JSON.stringify(this.UNKNOWN_GODS) && animLeft)
+      if (JSON.stringify(this.leftPlayerGods) != JSON.stringify(this.UNKNOWN_GODS) && animLeft && this.shouldAnimateLeftSide)
         this.flipAnimationGenerator('.leftPlayerGods')
-      if (JSON.stringify(this.rightPlayerGods) != JSON.stringify(this.UNKNOWN_GODS) && animRight)
+      if (JSON.stringify(this.rightPlayerGods) != JSON.stringify(this.UNKNOWN_GODS) && animRight && this.shouldAnimateRightSide)
         this.flipAnimationGenerator('.rightPlayerGods')
     }, 1)
 
@@ -287,26 +294,38 @@ export class PickPageComponent implements OnInit, OnDestroy {
   }
 
   submit() {
-    if (this.currentStep == Step.PICK_NEEDED) {
-      let selectedIds = this.ALL_GODS.filter(god => god.selected).map(god => god.id)
-      this.apiService.pickGods(this.playerUuid, this.roomId, selectedIds, this.leftPlayerName)
-        .subscribe(room => console.log("this.loadRoom(room, false)"));
-    } else if (this.currentStep == Step.PICKS_DONE) {
-      let selectedId = this.rightPlayerGods.find(god => god.selected).id
-      this.apiService.banGod(this.playerUuid, this.roomId, selectedId, this.leftPlayerName)
-        .subscribe(room => console.log("this.loadRoom(room, false)"));
-    }
+    this.preventValidationError = false;
+    this.apiService.updateUsername(this.playerUuid, this.roomId, this.leftPlayerName).subscribe(
+      {
+        next: () => {
+          this.usernameError = false
+          this.usernameUpdate = false
+          if (this.currentStep == Step.PICK_NEEDED) {
+            let selectedIds = this.ALL_GODS.filter(god => god.selected).map(god => god.id)
+            this.apiService.pickGods(this.playerUuid, this.roomId, selectedIds, this.leftPlayerName)
+              .subscribe();
+          } else if (this.currentStep == Step.PICKS_DONE) {
+            let selectedId = this.rightPlayerGods.find(god => god.selected).id
+            this.apiService.banGod(this.playerUuid, this.roomId, selectedId, this.leftPlayerName)
+              .subscribe();
+          }
+        },
+        error: () => {
+          this.preventValidationError = true;
+        }
+      })
   }
 
   updateUsername() {
     this.usernameError = false;
     this.usernameUpdate = false;
     this.apiService.updateUsername(this.playerUuid, this.roomId, this.leftPlayerName).subscribe({
-      next: err => {
+      next: () => {
         this.usernameError = false;
         this.usernameUpdate = true;
+        this.preventValidationError = false;
       },
-      error: err => {
+      error: () => {
         this.usernameError = true;
         this.usernameUpdate = false;
       },

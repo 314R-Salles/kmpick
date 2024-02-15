@@ -14,13 +14,15 @@ import {FormsModule} from "@angular/forms";
 import {HttpInterceptorService} from "./http-interceptor.service";
 import {Location, LocationStrategy, PathLocationStrategy} from "@angular/common";
 import {OverlayComponent} from "./overlay/overlay.component";
+import { RedirectComponent } from './redirect/redirect.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomePageComponent,
     PickPageComponent,
-    OverlayComponent
+    OverlayComponent,
+    RedirectComponent
   ],
   imports: [
     BrowserModule.withServerTransition({appId: 'serverApp'}),
